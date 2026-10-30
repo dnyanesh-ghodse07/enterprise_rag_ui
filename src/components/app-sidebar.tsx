@@ -12,20 +12,17 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
-import { apiGet, clearTokens, getCurrentUser } from "../api/client";
+import { apiGet, getCurrentUser } from "../api/client";
 import type { Conversation, User } from "../types";
 import ListItemSkelton from "./skeletons/ListItem.skeleton";
 import DeleteConversationDialog from "./chat/delete-conversation-dialog";
-import ChangePasswordDialog from "./auth/change-password-dialog";
 import {
     Sparkles,
     Plus,
     MessageSquare,
     Files,
-    LogOut,
     Trash2,
     User2,
-    KeyRound
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -37,7 +34,6 @@ export function AppSidebar() {
     const [history, setHistory] = useState<Conversation[]>([]);
     const [loadingConversation, setLoadingConversation] = useState(false);
     const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
-    const [showChangePassword, setShowChangePassword] = useState(false);
 
     const [currentUser, setCurrentUser] = useState<User | null>(() => {
         try {
@@ -96,13 +92,6 @@ export function AppSidebar() {
         if (id === deletedId) {
             navigate("/chat/conversations");
         }
-    };
-
-    const handleLogout = () => {
-        clearTokens();
-        localStorage.removeItem("current_user");
-        setCurrentUser(null);
-        navigate(`/login`);
     };
 
     const isDocumentsActive = location.pathname.startsWith("/documents");
@@ -263,33 +252,7 @@ export function AppSidebar() {
                         </div>
                     </div>
                 )}
-
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-xs text-muted-foreground hover:text-foreground h-8 gap-2"
-                    onClick={() => setShowChangePassword(true)}
-                >
-                    <KeyRound className="size-3.5 text-muted-foreground" />
-                    <span>Change Password</span>
-                </Button>
-
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 gap-2"
-                    onClick={handleLogout}
-                >
-                    <LogOut className="size-3.5" />
-                    <span>Sign Out</span>
-                </Button>
             </SidebarFooter>
-
-            {/* Change Password Dialog */}
-            <ChangePasswordDialog
-                isOpen={showChangePassword}
-                onClose={() => setShowChangePassword(false)}
-            />
 
             {/* Delete Conversation Confirmation Dialog */}
             <DeleteConversationDialog

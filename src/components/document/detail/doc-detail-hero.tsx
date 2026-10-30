@@ -4,14 +4,14 @@ import { Card, CardHeader } from "../../ui/card";
 import { Spinner } from "../../ui/spinner";
 import { getFileIcon } from "../doc-card";
 import { bytesToMB, formatDate } from "../../../utils";
-import { 
-    Download, 
-    UploadCloud, 
-    Trash2, 
-    Folder, 
-    HardDrive, 
-    User, 
-    Calendar, 
+import {
+    Download,
+    UploadCloud,
+    Trash2,
+    Folder,
+    HardDrive,
+    User,
+    Calendar,
     Lock,
     FolderInput,
     Database,
@@ -150,23 +150,23 @@ export default function DocDetailHero({
     return (
         <Card className="border-border/80 shadow-xs overflow-hidden">
             {/* Header: Identity & Metadata */}
-            <CardHeader className="p-5 sm:p-6 pb-4 sm:pb-5">
-                <div className="flex items-start gap-4">
+            <CardHeader className="p-3.5 sm:p-6 pb-3 sm:pb-5">
+                <div className="flex items-start gap-3 sm:gap-4">
                     {/* Document Type Icon */}
-                    <div className="flex size-14 sm:size-16 shrink-0 items-center justify-center rounded-2xl bg-muted/60 border border-border/40 text-foreground shadow-xs">
+                    <div className="flex size-11 sm:size-16 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-muted/60 border border-border/40 text-foreground shadow-xs">
                         {getFileIcon(doc.filename, doc.mime_type)}
                     </div>
 
                     {/* Title & Metadata Details */}
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                            <h1 
-                                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate max-w-2xl" 
+                    <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5">
+                        <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
+                            <h1
+                                className="text-base sm:text-2xl font-bold tracking-tight text-foreground truncate max-w-full"
                                 title={doc.title || doc.filename}
                             >
                                 {doc.title || doc.filename}
                             </h1>
-                            <Badge variant="outline" className="text-xs font-mono px-2 py-0.5">
+                            <Badge variant="outline" className="text-[10px] sm:text-xs font-mono px-1.5 py-0 sm:px-2 sm:py-0.5">
                                 v{doc.current_version}
                             </Badge>
                             {getStatusBadge(doc.status)}
@@ -186,7 +186,7 @@ export default function DocDetailHero({
                         )}
 
                         {/* Metadata Row */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap pt-1.5">
+                        <div className="flex items-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs text-muted-foreground flex-wrap pt-1">
                             {doc.collection_name && (
                                 <div className="flex items-center gap-1.5 text-foreground/80 font-medium">
                                     <Folder className="size-3.5 text-purple-500" />
@@ -211,20 +211,19 @@ export default function DocDetailHero({
             </CardHeader>
 
             {/* Dedicated Action Bar Toolbar: Perfectly Aligned */}
-            <div className="border-t border-border/50 bg-muted/10 px-5 sm:px-6 py-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="border-t border-border/50 bg-muted/10 px-3.5 sm:px-6 py-2.5 sm:py-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
                     {/* Primary Action Button */}
-                    <div className="flex items-center gap-2">
+                    <div className="w-full sm:w-auto">
                         <Button
                             variant={vectorStatus?.isEmbedded ? "outline" : "default"}
                             size="sm"
                             onClick={onProcessAndEmbed}
                             disabled={isProcessing || isEmbedding}
-                            className={`h-9 px-4 gap-2 text-xs sm:text-sm font-semibold shadow-xs ${
-                                vectorStatus?.isEmbedded 
-                                    ? "border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
-                                    : "bg-primary text-primary-foreground"
-                            }`}
+                            className={`w-full sm:w-auto h-9 px-4 gap-2 text-xs sm:text-sm font-semibold justify-center shadow-xs ${vectorStatus?.isEmbedded
+                                ? "border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                : "bg-primary text-primary-foreground"
+                                }`}
                             title="Extract chunks, generate embeddings, and store vectors into Qdrant"
                         >
                             {isProcessing || isEmbedding ? (
@@ -242,13 +241,13 @@ export default function DocDetailHero({
                     </div>
 
                     {/* Secondary Management Actions */}
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="grid grid-cols-2 xs:flex xs:items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={onDownload}
                             disabled={isDownloading}
-                            className="h-9 px-3 gap-1.5 text-xs sm:text-sm"
+                            className="flex-1 sm:flex-initial h-8 sm:h-9 px-2.5 sm:px-3 gap-1.5 text-xs justify-center"
                         >
                             {isDownloading ? (
                                 <Spinner className="size-3.5" />
@@ -263,7 +262,7 @@ export default function DocDetailHero({
                                 variant="outline"
                                 size="sm"
                                 onClick={onOpenMoveCollection}
-                                className="h-9 px-3 gap-1.5 text-xs sm:text-sm"
+                                className="flex-1 sm:flex-initial h-8 sm:h-9 px-2.5 sm:px-3 gap-1.5 text-xs justify-center"
                             >
                                 <FolderInput className="size-3.5 text-purple-500" />
                                 <span>Move</span>
@@ -274,10 +273,10 @@ export default function DocDetailHero({
                             variant="outline"
                             size="sm"
                             onClick={onOpenUploadVersion}
-                            className="h-9 px-3 gap-1.5 text-xs sm:text-sm"
+                            className="flex-1 sm:flex-initial h-8 sm:h-9 px-2.5 sm:px-3 gap-1.5 text-xs justify-center"
                         >
                             <UploadCloud className="size-3.5 text-blue-500" />
-                            <span>New Version</span>
+                            <span>Version</span>
                         </Button>
 
                         {isAdminOrOwner ? (
@@ -285,7 +284,7 @@ export default function DocDetailHero({
                                 variant="outline"
                                 size="sm"
                                 onClick={onOpenDeleteConfirm}
-                                className="h-9 px-3 gap-1.5 text-xs sm:text-sm text-destructive hover:bg-destructive hover:text-destructive-foreground border-destructive/30"
+                                className="flex-1 sm:flex-initial h-8 sm:h-9 px-2.5 sm:px-3 gap-1.5 text-xs justify-center text-destructive hover:bg-destructive hover:text-destructive-foreground border-destructive/30"
                             >
                                 <Trash2 className="size-3.5" />
                                 <span>Delete</span>
@@ -296,7 +295,7 @@ export default function DocDetailHero({
                                 size="sm"
                                 disabled
                                 title="Administrator or document owner permission required to delete"
-                                className="h-9 px-3 gap-1.5 text-xs sm:text-sm text-muted-foreground/60 cursor-not-allowed opacity-60"
+                                className="flex-1 sm:flex-initial h-8 sm:h-9 px-2.5 sm:px-3 gap-1.5 text-xs justify-center text-muted-foreground/60 cursor-not-allowed opacity-60"
                             >
                                 <Lock className="size-3 text-muted-foreground" />
                                 <span>Delete</span>
@@ -307,10 +306,10 @@ export default function DocDetailHero({
             </div>
 
             {/* Current Status & Progress Bar Footer */}
-            <div className="border-t border-border/60 bg-muted/25 px-5 sm:px-6 py-3">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between text-xs gap-3">
-                        <div className="flex items-center gap-2 min-w-0">
+            <div className="border-t border-border/60 bg-muted/25 px-3.5 sm:px-6 py-2.5 sm:py-3">
+                <div className="flex flex-col gap-1.5 sm:gap-2">
+                    <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between text-xs gap-1 sm:gap-3">
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                             {progressInfo.icon === "spinner" && (
                                 <Spinner className="size-3.5 text-primary shrink-0" />
                             )}
@@ -330,8 +329,8 @@ export default function DocDetailHero({
                                 {progressInfo.statusText}
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-[11px] font-mono text-muted-foreground font-medium">
+                        <div className="flex items-center gap-2 shrink-0 self-start xs:self-center">
+                            <span className="text-[10px] sm:text-[11px] font-mono text-muted-foreground font-medium">
                                 {progressInfo.stageLabel}
                             </span>
                         </div>
@@ -340,9 +339,8 @@ export default function DocDetailHero({
                     {/* Progress Bar Track */}
                     <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                            className={`h-full rounded-full transition-all duration-500 ${progressInfo.barColor} ${
-                                isProcessing || isEmbedding ? "animate-pulse" : ""
-                            }`}
+                            className={`h-full rounded-full transition-all duration-500 ${progressInfo.barColor} ${isProcessing || isEmbedding ? "animate-pulse" : ""
+                                }`}
                             style={{ width: `${progressInfo.percent}%` }}
                         />
                     </div>

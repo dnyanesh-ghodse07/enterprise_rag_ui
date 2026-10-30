@@ -25,6 +25,7 @@ import {
     Building2,
     Globe
 } from "lucide-react";
+import { ThemeToggle } from "../components/theme-toggle";
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -112,6 +113,11 @@ export default function RegisterPage() {
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center p-4 py-8 bg-background overflow-hidden selection:bg-primary/20">
+            {/* Top right Theme Toggle */}
+            <div className="absolute top-4 right-4 z-20">
+                <ThemeToggle />
+            </div>
+
             {/* Ambient Background Glows */}
             <div className="pointer-events-none absolute -top-40 -left-40 size-96 rounded-full bg-primary/15 blur-[120px]" />
             <div className="pointer-events-none absolute -bottom-40 -right-40 size-96 rounded-full bg-purple-500/15 blur-[120px]" />

@@ -64,7 +64,7 @@ export default function DocPreviewTab({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                    <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
                         {/* Markdown Formatted / Raw switcher */}
                         {isMarkdown && previewContent && (
                             <div className="flex items-center bg-muted rounded-lg p-0.5 border border-border/60">
@@ -93,43 +93,45 @@ export default function DocPreviewTab({
                             </div>
                         )}
 
-                        {/* Copy Content Button */}
-                        {previewContent && (
+                        <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
+                            {/* Copy Content Button */}
+                            {previewContent && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleCopy}
+                                    className="h-7 text-xs px-2 sm:px-2.5"
+                                >
+                                    {isCopied("preview-text") ? (
+                                        <>
+                                            <Check className="size-3 mr-1 text-emerald-500" />
+                                            Copied
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="size-3 mr-1" />
+                                            Copy
+                                        </>
+                                    )}
+                                </Button>
+                            )}
+
+                            {/* Download File Button */}
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={handleCopy}
-                                className="h-7 text-xs px-2.5"
+                                onClick={onDownload}
+                                disabled={isDownloading}
+                                className="h-7 text-xs px-2 sm:px-2.5"
                             >
-                                {isCopied("preview-text") ? (
-                                    <>
-                                        <Check className="size-3 mr-1 text-emerald-500" />
-                                        Copied
-                                    </>
-                                ) : (
-                                    <>
-                                        <Copy className="size-3 mr-1" />
-                                        Copy
-                                    </>
-                                )}
+                                <Download className="size-3 mr-1" />
+                                Download
                             </Button>
-                        )}
-
-                        {/* Download File Button */}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={onDownload}
-                            disabled={isDownloading}
-                            className="h-7 text-xs px-2.5"
-                        >
-                            <Download className="size-3 mr-1" />
-                            Download
-                        </Button>
+                        </div>
                     </div>
                 </CardHeader>
 
-                <CardContent className="p-3 sm:p-5">
+                <CardContent className="p-2 sm:p-5">
                     {previewLoading ? (
                         <div className="space-y-3 py-8">
                             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-4">
@@ -143,11 +145,11 @@ export default function DocPreviewTab({
                         </div>
                     ) : previewContent ? (
                         previewMode === "formatted" && isMarkdown ? (
-                            <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed p-2">
+                            <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed p-1.5 sm:p-2">
                                 <Markdown content={previewContent} />
                             </div>
                         ) : (
-                            <pre className="text-xs font-mono bg-muted/40 p-4 rounded-lg overflow-x-auto max-h-[600px] whitespace-pre-wrap break-words text-foreground/90 leading-relaxed border border-border/40">
+                            <pre className="text-xs font-mono bg-muted/40 p-2.5 sm:p-4 rounded-lg overflow-x-auto max-h-[420px] sm:max-h-[600px] whitespace-pre-wrap break-words text-foreground/90 leading-relaxed border border-border/40">
                                 {previewContent}
                             </pre>
                         )
@@ -155,14 +157,14 @@ export default function DocPreviewTab({
                         <iframe
                             src={previewBlobUrl}
                             title="PDF Document Preview"
-                            className="w-full h-[650px] rounded-lg border border-border/80"
+                            className="w-full h-[400px] sm:h-[650px] rounded-lg border border-border/80"
                         />
                     ) : previewBlobUrl && isImage ? (
-                        <div className="flex justify-center p-4 bg-muted/20 rounded-lg">
+                        <div className="flex justify-center p-2 sm:p-4 bg-muted/20 rounded-lg">
                             <img
                                 src={previewBlobUrl}
                                 alt={doc.filename}
-                                className="max-h-[600px] max-w-full rounded-md object-contain shadow-xs"
+                                className="max-h-[350px] sm:max-h-[600px] max-w-full rounded-md object-contain shadow-xs"
                             />
                         </div>
                     ) : (

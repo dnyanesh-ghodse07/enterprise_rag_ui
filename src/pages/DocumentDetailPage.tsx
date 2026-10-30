@@ -112,21 +112,21 @@ export default function DocumentDetailPage() {
     }
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-5">
+        <div className="w-full max-w-7xl mx-auto px-2.5 py-3 sm:px-6 sm:py-6 space-y-3.5 sm:space-y-5">
             {/* Top Back Navigation Bar */}
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate("/documents")}
-                        className="text-xs sm:text-sm text-muted-foreground hover:text-foreground"
+                        className="text-xs sm:text-sm text-muted-foreground hover:text-foreground h-8 px-2 sm:px-3 shrink-0"
                     >
-                        <ArrowLeft className="size-4 mr-1.5" />
-                        Documents
+                        <ArrowLeft className="size-4 mr-1 sm:mr-1.5" />
+                        <span className="hidden xs:inline">Documents</span>
                     </Button>
-                    <span className="text-muted-foreground/40">/</span>
-                    <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[200px] sm:max-w-md">
+                    <span className="text-muted-foreground/40 shrink-0">/</span>
+                    <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[120px] xs:max-w-[190px] sm:max-w-md">
                         {doc.title || doc.filename}
                     </span>
                 </div>
@@ -134,25 +134,26 @@ export default function DocumentDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={fetchDocumentData}
-                    className="text-xs"
+                    className="text-xs h-8 px-2 sm:px-3 shrink-0"
+                    title="Refresh document"
                 >
-                    <RefreshCw className="size-3.5 mr-1.5" />
-                    Refresh
+                    <RefreshCw className="size-3.5 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Refresh</span>
                 </Button>
             </div>
 
             {/* Notification alert */}
             {actionMessage && (
-                <div className={`flex items-center justify-between p-3 rounded-xl text-xs sm:text-sm ${
+                <div className={`flex items-center justify-between p-2.5 sm:p-3 rounded-xl text-xs sm:text-sm ${
                     actionMessage.type === "success" 
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
                         : "bg-destructive/10 text-destructive border border-destructive/20"
                 }`}>
-                    <div className="flex items-center gap-2">
-                        {actionMessage.type === "success" ? <CheckCircle2 className="size-4" /> : <AlertCircle className="size-4" />}
-                        <span>{actionMessage.text}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                        {actionMessage.type === "success" ? <CheckCircle2 className="size-4 shrink-0" /> : <AlertCircle className="size-4 shrink-0" />}
+                        <span className="truncate">{actionMessage.text}</span>
                     </div>
-                    <button onClick={clearActionMessage} className="p-0.5 hover:opacity-80">
+                    <button onClick={clearActionMessage} className="p-0.5 hover:opacity-80 shrink-0">
                         <X className="size-3.5" />
                     </button>
                 </div>

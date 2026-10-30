@@ -1,1 +1,0 @@
-export { ChatWelcome as default, ChatWelcome } from "./chat-welcome";

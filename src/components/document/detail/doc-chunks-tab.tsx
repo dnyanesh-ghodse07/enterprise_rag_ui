@@ -89,33 +89,33 @@ export default function DocChunksTab({
 
             {/* Vector status banner when chunks exist */}
             {chunks.length > 0 && (
-                <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border text-xs transition-colors ${
+                <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border text-xs transition-colors ${
                     vectorStatus?.isEmbedded
                         ? "bg-emerald-500/5 border-emerald-500/25 text-foreground"
                         : "bg-muted/40 border-border/80 text-foreground"
                 }`}>
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
+                    <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                        <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 mt-0.5 sm:mt-0 ${
                             vectorStatus?.isEmbedded 
                                 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
                                 : "bg-muted text-muted-foreground"
                         }`}>
-                            <Database className="size-4" />
+                            <Database className="size-3.5 sm:size-4" />
                         </div>
-                        <div>
-                            <div className="font-semibold flex items-center gap-2">
-                                <span>{vectorStatus?.isEmbedded ? "Indexed in Qdrant Vector DB" : "Vector Embeddings Pending"}</span>
+                        <div className="min-w-0">
+                            <div className="font-semibold flex items-center gap-2 flex-wrap">
+                                <span className="text-xs">{vectorStatus?.isEmbedded ? "Indexed in Qdrant Vector DB" : "Vector Embeddings Pending"}</span>
                                 {vectorStatus?.isEmbedded ? (
-                                    <Badge variant="success" className="text-[10px] py-0 px-1.5 h-4">
+                                    <Badge variant="success" className="text-[9px] sm:text-[10px] py-0 px-1.5 h-4">
                                         Ready
                                     </Badge>
                                 ) : (
-                                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-dashed text-muted-foreground">
+                                    <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1.5 h-4 border-dashed text-muted-foreground">
                                         Not Embedded
                                     </Badge>
                                 )}
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                            <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">
                                 {vectorStatus?.isEmbedded
                                     ? `${vectorStatus.chunksEmbedded || chunks.length} chunks converted to 1536d vectors (model: text-embedding-3-small) in collection 'cognix_documents'`
                                     : "Convert extracted chunks to semantic vectors to enable vector search in AI Chat"}
@@ -128,7 +128,7 @@ export default function DocChunksTab({
                             variant={vectorStatus?.isEmbedded ? "outline" : "default"}
                             onClick={onEmbed}
                             disabled={isEmbedding || isProcessing}
-                            className="text-xs shrink-0 self-start sm:self-center"
+                            className="text-xs shrink-0 w-full sm:w-auto justify-center h-8"
                         >
                             {isEmbedding ? (
                                 <>
@@ -148,15 +148,15 @@ export default function DocChunksTab({
 
             {/* Unprocessed Empty State */}
             {chunks.length === 0 ? (
-                <Card className="p-8 text-center border-dashed bg-muted/20">
-                    <Clock className="size-10 mx-auto text-muted-foreground mb-2" />
+                <Card className="p-5 sm:p-8 text-center border-dashed bg-muted/20">
+                    <Clock className="size-8 sm:size-10 mx-auto text-muted-foreground mb-2" />
                     <h3 className="text-sm font-semibold">Document Not Yet Processed</h3>
-                    <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1 mb-4 leading-relaxed">
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1 mb-4 leading-relaxed px-2">
                         This document is stored in the workspace but has not been parsed into semantic search chunks. 
                         Click below to extract knowledge chunks and store vector embeddings into Qdrant.
                     </p>
                     <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <Button size="sm" onClick={onEmbed || onProcess} disabled={isProcessing || isEmbedding}>
+                        <Button size="sm" onClick={onEmbed || onProcess} disabled={isProcessing || isEmbedding} className="w-full sm:w-auto justify-center">
                             {isEmbedding || isProcessing ? (
                                 <>
                                     <Spinner className="size-3.5 mr-1.5" />
@@ -172,8 +172,8 @@ export default function DocChunksTab({
                     </div>
                 </Card>
             ) : filteredChunks.length === 0 ? (
-                <Card className="p-8 text-center border-border/80 bg-muted/10">
-                    <Search className="size-8 mx-auto text-muted-foreground mb-2" />
+                <Card className="p-5 sm:p-8 text-center border-border/80 bg-muted/10">
+                    <Search className="size-7 sm:size-8 mx-auto text-muted-foreground mb-2" />
                     <h3 className="text-sm font-semibold">No Chunks Match Filter</h3>
                     <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1 mb-3">
                         No chunks found matching "{searchQuery}". Try searching with different keywords.
@@ -183,36 +183,36 @@ export default function DocChunksTab({
                     </Button>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
                     {filteredChunks.map((chunk) => (
                         <Card 
                             key={chunk.id} 
-                            className="p-4 border-border/80 hover:border-primary/40 transition-colors bg-card"
+                            className="p-3 sm:p-4 border-border/80 hover:border-primary/40 transition-colors bg-card"
                         >
-                            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border/40 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-2 flex-wrap min-w-0">
-                                    <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+                            <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/40 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                                    <Badge variant="outline" className="text-[9px] sm:text-[10px] font-mono shrink-0">
                                         Chunk #{chunk.chunk_index + 1}
                                     </Badge>
                                     {chunk.section_heading && (
-                                        <Badge variant="secondary" className="text-[10px] truncate max-w-xs font-medium text-foreground">
+                                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] truncate max-w-[130px] xs:max-w-xs font-medium text-foreground">
                                             {chunk.section_heading}
                                         </Badge>
                                     )}
                                     {chunk.page_number && (
-                                        <span className="text-[11px]">Page {chunk.page_number}</span>
+                                        <span className="text-[10px] sm:text-[11px]">p. {chunk.page_number}</span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <span className="text-[11px] font-mono text-muted-foreground">
-                                        {chunk.token_count} tokens
+                                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                                    <span className="text-[10px] sm:text-[11px] font-mono text-muted-foreground">
+                                        {chunk.token_count} tok
                                     </span>
                                     <Button
                                         variant="ghost"
                                         size="icon-xs"
                                         onClick={() => copy(chunk.content, chunk.id)}
                                         title="Copy chunk text"
-                                        className="h-6 w-6"
+                                        className="size-6 p-0"
                                     >
                                         {isCopied(chunk.id) ? (
                                             <Check className="size-3 text-emerald-500" />
@@ -222,7 +222,7 @@ export default function DocChunksTab({
                                     </Button>
                                 </div>
                             </div>
-                            <p className="mt-2.5 text-xs font-mono leading-relaxed text-foreground/90 whitespace-pre-wrap break-words select-text">
+                            <p className="mt-2 text-xs font-mono leading-relaxed text-foreground/90 whitespace-pre-wrap break-words select-text">
                                 {chunk.content}
                             </p>
                         </Card>

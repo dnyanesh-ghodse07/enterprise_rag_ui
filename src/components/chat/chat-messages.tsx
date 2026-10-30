@@ -29,11 +29,11 @@ export function ChatMessages() {
 
     return (
         <div className="relative flex-1 min-h-0 w-full overflow-hidden">
-            <ScrollArea 
+            <ScrollArea
                 className="h-full w-full"
                 onScrollCapture={handleScroll}
             >
-                <div className="flex flex-col p-4 sm:p-6 max-w-3xl mx-auto min-h-full">
+                <div className="flex flex-col p-2.5 sm:p-6 max-w-3xl mx-auto min-h-full">
                     {loadingConversation ? (
                         <div className="py-6 space-y-4">
                             <MessageSkeloton count={6} />
@@ -54,18 +54,18 @@ export function ChatMessages() {
 
                             {/* Thinking / Streaming Indicator */}
                             {loadingSubmit && (
-                                <div className="flex items-start gap-2.5 my-3 animate-in fade-in-50 duration-200">
-                                    <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary mt-0.5">
-                                        <Sparkles className="size-4 animate-spin" />
+                                <div className="flex items-start gap-2 sm:gap-2.5 my-2.5 sm:my-3 animate-in fade-in-50 duration-200">
+                                    <div className="flex size-6 sm:size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary mt-0.5">
+                                        <Sparkles className="size-3.5 sm:size-4 animate-spin" />
                                     </div>
-                                    <div className="rounded-2xl rounded-tl-xs bg-muted/60 border border-border/60 px-4 py-3 shadow-xs">
+                                    <div className="rounded-2xl rounded-tl-xs bg-muted/60 border border-border/60 px-3 py-2 sm:px-4 sm:py-3 shadow-xs">
                                         <div className="flex items-center gap-2">
                                             <div className="flex gap-1">
                                                 <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
                                                 <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
                                                 <span className="size-1.5 rounded-full bg-primary animate-bounce" />
                                             </div>
-                                            <span className="text-xs text-muted-foreground font-medium">
+                                            <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
                                                 Cognix is researching documents and generating response...
                                             </span>
                                         </div>
@@ -81,16 +81,16 @@ export function ChatMessages() {
 
             {/* Floating Scroll to Bottom button */}
             {showScrollBottom && (
-                <div className="absolute bottom-4 right-6 animate-in fade-in-50 duration-200 z-10">
+                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-6 animate-in fade-in-50 duration-200 z-10">
                     <Button
                         type="button"
                         variant="secondary"
                         size="sm"
                         onClick={() => scrollToBottom("smooth")}
-                        className="rounded-full shadow-md size-9 p-0 bg-background/90 backdrop-blur-xs border border-border"
+                        className="rounded-full shadow-md size-8 sm:size-9 p-0 bg-background/90 backdrop-blur-xs border border-border"
                         aria-label="Scroll to bottom"
                     >
-                        <ArrowDown className="size-4 text-foreground" />
+                        <ArrowDown className="size-3.5 sm:size-4 text-foreground" />
                     </Button>
                 </div>
             )}

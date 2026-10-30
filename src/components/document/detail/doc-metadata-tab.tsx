@@ -22,65 +22,65 @@ export default function DocMetadataTab({
     onEmbed,
 }: DocMetadataTabProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-4 sm:p-5 border-border/80 bg-card">
-                <CardTitle className="text-sm font-semibold mb-3">General Information</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <Card className="p-3.5 sm:p-5 border-border/80 bg-card">
+                <CardTitle className="text-xs sm:text-sm font-semibold mb-2.5 sm:mb-3">General Information</CardTitle>
                 <div className="divide-y divide-border/40 text-xs">
-                    <div className="py-2 flex justify-between">
-                        <span className="text-muted-foreground">Document ID</span>
-                        <span className="font-mono text-[11px] select-all">{doc.id}</span>
+                    <div className="py-2 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-muted-foreground shrink-0">Document ID</span>
+                        <span className="font-mono text-[10px] sm:text-[11px] select-all truncate max-w-[170px] xs:max-w-[220px] sm:max-w-none">{doc.id}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
-                        <span className="text-muted-foreground">Tenant ID</span>
-                        <span className="font-mono text-[11px] select-all">{doc.tenant_id}</span>
+                    <div className="py-2 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-muted-foreground shrink-0">Tenant ID</span>
+                        <span className="font-mono text-[10px] sm:text-[11px] select-all truncate max-w-[170px] xs:max-w-[220px] sm:max-w-none">{doc.tenant_id}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
-                        <span className="text-muted-foreground">MIME Type</span>
-                        <span className="font-mono">{doc.mime_type}</span>
+                    <div className="py-2 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-muted-foreground shrink-0">MIME Type</span>
+                        <span className="font-mono text-[11px] truncate max-w-[160px] sm:max-w-none">{doc.mime_type}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">File Size</span>
                         <span>{bytesToMB(doc.file_size)}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Current Version</span>
                         <Badge variant="outline" className="text-[10px]">v{doc.current_version}</Badge>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Status</span>
                         <span className="capitalize font-medium">{doc.status}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Active</span>
                         <span>{doc.is_active ? "Yes" : "No"}</span>
                     </div>
                 </div>
             </Card>
 
-            <Card className="p-4 sm:p-5 border-border/80 bg-card">
-                <CardTitle className="text-sm font-semibold mb-3">Ownership & Timestamps</CardTitle>
+            <Card className="p-3.5 sm:p-5 border-border/80 bg-card">
+                <CardTitle className="text-xs sm:text-sm font-semibold mb-2.5 sm:mb-3">Ownership & Timestamps</CardTitle>
                 <div className="divide-y divide-border/40 text-xs">
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Uploaded By</span>
                         <span className="font-medium">@{doc.uploader_name}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
-                        <span className="text-muted-foreground">Uploader User ID</span>
-                        <span className="font-mono text-[11px] select-all">{doc.uploaded_by}</span>
+                    <div className="py-2 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-muted-foreground shrink-0">Uploader User ID</span>
+                        <span className="font-mono text-[10px] sm:text-[11px] select-all truncate max-w-[170px] xs:max-w-[220px] sm:max-w-none">{doc.uploaded_by}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Collection</span>
-                        <span>{doc.collection_name || "General knowledge"}</span>
+                        <span className="truncate max-w-[160px] sm:max-w-none">{doc.collection_name || "General knowledge"}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Created At</span>
-                        <span>{new Date(doc.created_at).toLocaleString()}</span>
+                        <span>{new Date(doc.created_at).toLocaleDateString()}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Last Updated</span>
-                        <span>{new Date(doc.updated_at).toLocaleString()}</span>
+                        <span>{new Date(doc.updated_at).toLocaleDateString()}</span>
                     </div>
-                    <div className="py-2 flex justify-between">
+                    <div className="py-2 flex items-center justify-between gap-2">
                         <span className="text-muted-foreground">Chunks Count</span>
                         <span>{chunksCount} chunks</span>
                     </div>
@@ -88,11 +88,11 @@ export default function DocMetadataTab({
             </Card>
 
             {/* Vector Store & Embedding Information */}
-            <Card className="p-4 sm:p-5 border-border/80 bg-card md:col-span-2">
-                <div className="flex items-center justify-between gap-3 mb-3">
+            <Card className="p-3.5 sm:p-5 border-border/80 bg-card md:col-span-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                        <Database className="size-4 text-emerald-500" />
-                        <CardTitle className="text-sm font-semibold">Vector Store & Embedding Index</CardTitle>
+                        <Database className="size-4 text-emerald-500 shrink-0" />
+                        <CardTitle className="text-xs sm:text-sm font-semibold">Vector Store & Embedding Index</CardTitle>
                     </div>
                     {onEmbed && (
                         <Button
@@ -100,7 +100,7 @@ export default function DocMetadataTab({
                             variant={vectorStatus?.isEmbedded ? "outline" : "default"}
                             onClick={onEmbed}
                             disabled={isEmbedding}
-                            className="text-xs h-8"
+                            className="text-xs h-8 w-full sm:w-auto justify-center"
                         >
                             {isEmbedding ? (
                                 <>

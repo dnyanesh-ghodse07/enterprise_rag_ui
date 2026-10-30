@@ -1,9 +1,9 @@
 import { useChat, ChatProvider } from "../context/ChatContext";
-import { 
-    ChatHeader, 
-    ChatWelcome, 
-    ChatMessages, 
-    ChatComposer 
+import {
+    ChatHeader,
+    ChatWelcome,
+    ChatMessages,
+    ChatComposer
 } from "../components/chat";
 
 function ChatPageContent() {
