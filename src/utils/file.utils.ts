@@ -6,9 +6,8 @@ export function resolveBackendFileUrl(urlPath: string): string {
     if (urlPath.startsWith("http://") || urlPath.startsWith("https://")) {
         return urlPath;
     }
-    const backendBase = import.meta.env.VITE_API_URL 
-        ? new URL(import.meta.env.VITE_API_URL).origin 
-        : "http://localhost:8000";
+    const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const backendBase = new URL(apiBase, window.location.origin).origin;
     return `${backendBase}${urlPath}`;
 }
 
