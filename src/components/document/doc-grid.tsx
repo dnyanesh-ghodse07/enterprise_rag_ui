@@ -24,9 +24,9 @@ export default function DocGrid({
     onDocumentClick,
     onMoveDocument,
 }: DocGridProps) {
-    if (isLoading && (!documents || documents.length === 0)) {
+    if (isLoading && documents.length === 0) {
         return (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4" role="status" aria-label="Loading documents">
                 {Array.from({ length: 8 }).map((_, index) => (
                     <Card key={index} className="p-4 space-y-3 border-border/80">
                         <div className="flex items-start justify-between gap-2">

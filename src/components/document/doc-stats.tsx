@@ -14,7 +14,7 @@ export default function DocStats({ stats, isLoading = false }: DocStatsProps) {
     const showSkeleton = isLoading && !stats;
 
     return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4" aria-busy={isLoading}>
             {/* Total Documents */}
             <Card className="p-4 border-border/80 shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -107,7 +107,9 @@ export default function DocStats({ stats, isLoading = false }: DocStatsProps) {
                         </div>
                     )}
                     <div className="flex items-center gap-1 mt-1 overflow-x-auto no-scrollbar">
-                        {Object.keys(stats?.count_by_collection ?? {}).length > 0 ? (
+                        {showSkeleton ? (
+                            <Skeleton className="h-4 w-24" />
+                        ) : Object.keys(stats?.count_by_collection ?? {}).length > 0 ? (
                             Object.keys(stats?.count_by_collection ?? {}).slice(0, 2).map((key) => (
                                 <Badge key={key} variant="secondary" className="text-[10px] px-1.5 py-0 truncate max-w-[100px]">
                                     {key} ({stats?.count_by_collection[key]})

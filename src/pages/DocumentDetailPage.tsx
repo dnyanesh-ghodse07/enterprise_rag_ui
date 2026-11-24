@@ -77,7 +77,7 @@ export default function DocumentDetailPage() {
     // Initial Loading Skeleton State
     if (isLoading && !doc) {
         return (
-            <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-6">
+            <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-6" role="status" aria-label="Loading document">
                 <div className="flex items-center gap-3">
                     <Skeleton className="h-8 w-8 rounded-lg" />
                     <Skeleton className="h-6 w-48" />
@@ -134,10 +134,11 @@ export default function DocumentDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={fetchDocumentData}
+                    disabled={isLoading}
                     className="text-xs h-8 px-2 sm:px-3 shrink-0"
                     title="Refresh document"
                 >
-                    <RefreshCw className="size-3.5 sm:mr-1.5" />
+                    <RefreshCw className={`size-3.5 sm:mr-1.5 ${isLoading ? "animate-spin" : ""}`} />
                     <span className="hidden sm:inline">Refresh</span>
                 </Button>
             </div>

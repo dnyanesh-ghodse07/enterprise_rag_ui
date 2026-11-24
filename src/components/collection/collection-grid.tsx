@@ -28,7 +28,7 @@ export default function CollectionGrid({
 }: CollectionGridProps) {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4" role="status" aria-label="Loading collections">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <Card key={i} className="p-4 space-y-3 border-border/80">
                         <div className="flex items-center justify-between">

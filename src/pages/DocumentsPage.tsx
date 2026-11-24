@@ -1,6 +1,6 @@
-import { useEffect, useState, useTransition, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { apiGet } from "../api/client";
+import { useApiGet } from "../hooks/use-api-get";
 import { 
     DocHeader, 
     DocStats, 
@@ -17,6 +17,7 @@ import {
 } from "../components/collection";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { Skeleton } from "../components/ui/skeleton";
 import type { Document, DocumentsList, DocStats as DocStatsType } from "../types/document.types";
 import type { CollectionItem, CollectionResponse } from "../types/collection.types";
 import { 
@@ -34,20 +35,22 @@ type ActiveTab = "documents" | "collections";
 
 export default function DocumentPage() {
     const navigate = useNavigate();
+    const [refreshVersion, setRefreshVersion] = useState(0);
+    const { data: documents, isLoading: isLoadingDocuments } = useApiGet<DocumentsList>("/documents?page_size=100", refreshVersion);
+    const { data: docStats, isLoading: isLoadingDocStats } = useApiGet<DocStatsType>("/documents/stats", refreshVersion);
+    const { data: collectionList, isLoading: isLoadingCollections } = useApiGet<CollectionResponse>("/collections", refreshVersion);
+    const showDocumentCountSkeleton = isLoadingDocuments && !documents;
 
     // Active View Tab: Documents or Collections
     const [activeTab, setActiveTab] = useState<ActiveTab>("documents");
 
     // Documents state
-    const [documents, setDocuments] = useState<DocumentsList | null>(null);
-    const [docStats, setDocStats] = useState<DocStatsType | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCollection, setSelectedCollection] = useState<string>("all");
     const [selectedStatus, setSelectedStatus] = useState<string>("all");
     const [showUploadForm, setShowUploadForm] = useState(false);
 
     // Collections state
-    const [collections, setCollections] = useState<CollectionItem[]>([]);
     const [collectionSearchQuery, setCollectionSearchQuery] = useState("");
 
     // Dialogs state
@@ -59,56 +62,7 @@ export default function DocumentPage() {
     // Toast Notification message
     const [notification, setNotification] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-    // Transitions for smooth rendering
-    const [isPendingDocuments, startTransitionDocuments] = useTransition();
-    const [isPendingDocStats, startTransitionDocStats] = useTransition();
-    const [isPendingCollections, startTransitionCollections] = useTransition();
-
-    const getDocumentStats = useCallback(() => {
-        startTransitionDocStats(() => {
-            apiGet<DocStatsType>("/documents/stats")
-                .then((res) => {
-                    setDocStats(res);
-                })
-                .catch((err) => {
-                    console.error("Error fetching document stats", err);
-                });
-        });
-    }, []);
-
-    const getDocuments = useCallback(() => {
-        startTransitionDocuments(() => {
-            apiGet<DocumentsList>("/documents?page_size=100")
-                .then((res) => {
-                    setDocuments(res);
-                })
-                .catch((err) => {
-                    console.error("Error fetching documents", err);
-                });
-        });
-    }, []);
-
-    const getCollections = useCallback(() => {
-        startTransitionCollections(() => {
-            apiGet<CollectionResponse>("/collections")
-                .then((res) => {
-                    setCollections(res.items || []);
-                })
-                .catch((err) => {
-                    console.error("Error fetching collections", err);
-                });
-        });
-    }, []);
-
-    const handleRefresh = useCallback(() => {
-        getDocuments();
-        getDocumentStats();
-        getCollections();
-    }, [getDocuments, getDocumentStats, getCollections]);
-
-    useEffect(() => {
-        handleRefresh();
-    }, [handleRefresh]);
+    const handleRefresh = () => setRefreshVersion((version) => version + 1);
 
     // Filter documents based on query, collection, and status
     const filteredDocuments = useMemo(() => {
@@ -138,7 +92,7 @@ export default function DocumentPage() {
 
     // Filter collections based on search query
     const filteredCollections = useMemo(() => {
-        if (!collections) return [];
+        const collections = collectionList?.items ?? [];
         if (!collectionSearchQuery.trim()) return collections;
 
         const q = collectionSearchQuery.toLowerCase();
@@ -147,7 +101,7 @@ export default function DocumentPage() {
                 c.name.toLowerCase().includes(q) ||
                 (c.description && c.description.toLowerCase().includes(q))
         );
-    }, [collections, collectionSearchQuery]);
+    }, [collectionList, collectionSearchQuery]);
 
     const hasActiveDocFilters = 
         searchQuery !== "" || 
@@ -198,7 +152,7 @@ export default function DocumentPage() {
             {/* Modular Header */}
             <DocHeader
                 onRefresh={handleRefresh}
-                isRefreshing={isPendingDocuments || isPendingDocStats || isPendingCollections}
+                isRefreshing={isLoadingDocuments || isLoadingDocStats || isLoadingCollections}
                 showUploadForm={showUploadForm}
                 onToggleUpload={() => setShowUploadForm((prev) => !prev)}
                 onNewCollection={() => setShowCreateCollectionDialog(true)}
@@ -224,7 +178,7 @@ export default function DocumentPage() {
             {/* Modular Statistics Grid */}
             <DocStats
                 stats={docStats}
-                isLoading={isPendingDocStats}
+                isLoading={isLoadingDocStats}
             />
 
             {/* Modular Upload Form */}
@@ -248,13 +202,17 @@ export default function DocumentPage() {
                     >
                         <Files className="size-4" />
                         <span>Documents</span>
-                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
-                            activeTab === "documents" 
-                                ? "bg-primary-foreground/20 text-primary-foreground" 
-                                : "bg-muted text-muted-foreground"
-                        }`}>
-                            {documents?.total ?? 0}
-                        </span>
+                        {showDocumentCountSkeleton ? (
+                            <Skeleton as="span" className="h-3.5 w-5" aria-hidden="true" />
+                        ) : (
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
+                                activeTab === "documents"
+                                    ? "bg-primary-foreground/20 text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                            }`}>
+                                {documents?.total ?? 0}
+                            </span>
+                        )}
                     </button>
 
                     <button
@@ -268,13 +226,17 @@ export default function DocumentPage() {
                     >
                         <Folder className="size-4" />
                         <span>Collections</span>
-                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
-                            activeTab === "collections" 
-                                ? "bg-primary-foreground/20 text-primary-foreground" 
-                                : "bg-muted text-muted-foreground"
-                        }`}>
-                            {collections.length}
-                        </span>
+                        {isLoadingCollections ? (
+                            <Skeleton as="span" className="h-3.5 w-5" aria-hidden="true" />
+                        ) : (
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
+                                activeTab === "collections"
+                                    ? "bg-primary-foreground/20 text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                            }`}>
+                                {collectionList?.items?.length ?? 0}
+                            </span>
+                        )}
                     </button>
                 </div>
 
@@ -289,6 +251,8 @@ export default function DocumentPage() {
                             <FolderPlus className="size-3.5 mr-1.5" />
                             New Collection
                         </Button>
+                    ) : showDocumentCountSkeleton ? (
+                        <Skeleton className="hidden h-4 w-36 sm:block" aria-hidden="true" />
                     ) : (
                         <span className="text-xs text-muted-foreground hidden sm:inline">
                             Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {documents?.total ?? 0} documents
@@ -315,9 +279,13 @@ export default function DocumentPage() {
 
                     {/* Results counter for mobile */}
                     <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5 sm:hidden">
-                        <span>
-                            Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {documents?.total ?? 0} documents
-                        </span>
+                        {showDocumentCountSkeleton ? (
+                            <Skeleton className="h-4 w-36" aria-hidden="true" />
+                        ) : (
+                            <span>
+                                Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {documents?.total ?? 0} documents
+                            </span>
+                        )}
                         {!showUploadForm && (
                             <button
                                 type="button"
@@ -332,7 +300,7 @@ export default function DocumentPage() {
                     {/* Modular Documents Grid */}
                     <DocGrid
                         documents={filteredDocuments}
-                        isLoading={isPendingDocuments}
+                        isLoading={isLoadingDocuments}
                         hasActiveFilters={hasActiveDocFilters}
                         onClearFilters={handleClearDocFilters}
                         onUploadClick={() => setShowUploadForm(true)}
@@ -368,17 +336,19 @@ export default function DocumentPage() {
                             )}
                         </div>
 
-                        <div className="text-xs text-muted-foreground">
-                            <span>
-                                Showing <strong className="text-foreground">{filteredCollections.length}</strong> of {collections.length} collections
+                        {isLoadingCollections ? (
+                            <Skeleton className="h-4 w-36" aria-hidden="true" />
+                        ) : (
+                            <span className="text-xs text-muted-foreground">
+                                Showing <strong className="text-foreground">{filteredCollections.length}</strong> of {collectionList?.items?.length ?? 0} collections
                             </span>
-                        </div>
+                        )}
                     </div>
 
                     {/* Collections Grid */}
                     <CollectionGrid
                         collections={filteredCollections}
-                        isLoading={isPendingCollections}
+                        isLoading={isLoadingCollections}
                         hasActiveFilters={Boolean(collectionSearchQuery)}
                         onClearFilters={() => setCollectionSearchQuery("")}
                         onCreateClick={() => setShowCreateCollectionDialog(true)}

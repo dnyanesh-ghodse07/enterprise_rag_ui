@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
-import { apiGet, apiPatch } from "../../api/client";
+import { Skeleton } from "../ui/skeleton";
+import { apiPatch } from "../../api/client";
+import { useApiGet } from "../../hooks/use-api-get";
 import type { Document } from "../../types/document.types";
-import type { CollectionResponse, CollectionItem } from "../../types/collection.types";
+import type { CollectionResponse } from "../../types/collection.types";
 import { FolderInput, Folder, AlertCircle } from "lucide-react";
 
 interface MoveDocDialogProps {
@@ -21,38 +23,23 @@ export default function MoveDocDialog({
     onClose,
     onSuccess,
 }: MoveDocDialogProps) {
-    const [collections, setCollections] = useState<CollectionItem[]>([]);
-    const [selectedCollectionId, setSelectedCollectionId] = useState<string>("none");
-    const [isLoadingCollections, setIsLoadingCollections] = useState(false);
+    if (!isOpen || !document) return null;
+
+    return <MoveDocForm key={document.id} document={document} onClose={onClose} onSuccess={onSuccess} />;
+}
+
+function MoveDocForm({ document, onClose, onSuccess }: Pick<MoveDocDialogProps, "onClose" | "onSuccess"> & { document: Document }) {
+    const { data: collections, error: collectionsError, isLoading: isLoadingCollections, clearError } =
+        useApiGet<CollectionResponse>("/collections");
+    const [selectedCollectionId, setSelectedCollectionId] = useState(document.collection_id || "none");
     const [isMoving, setIsMoving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!isOpen || !document) return;
-
-        // Reset state
-        setSelectedCollectionId(document.collection_id || "none");
-        setError(null);
-
-        setIsLoadingCollections(true);
-        apiGet<CollectionResponse>("/collections")
-            .then((res) => {
-                setCollections(res.items || []);
-            })
-            .catch((err) => {
-                console.error("Failed to load collections", err);
-                setError("Failed to load collections list.");
-            })
-            .finally(() => {
-                setIsLoadingCollections(false);
-            });
-    }, [isOpen, document]);
-
-    if (!isOpen || !document) return null;
+    const visibleError = error ?? (collectionsError && "Failed to load collections list.");
 
     const handleMove = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        clearError();
         setIsMoving(true);
 
         const newCollectionId = selectedCollectionId === "none" ? null : selectedCollectionId;
@@ -70,9 +57,9 @@ export default function MoveDocDialog({
             });
             onSuccess(updated);
             onClose();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error moving document to collection", err);
-            setError(err?.message || "Failed to move document. Please try again.");
+            setError(err instanceof Error && err.message ? err.message : "Failed to move document. Please try again.");
         } finally {
             setIsMoving(false);
         }
@@ -95,10 +82,10 @@ export default function MoveDocDialog({
 
                 <CardContent className="p-4 sm:p-5">
                     <form onSubmit={handleMove} className="space-y-4">
-                        {error && (
+                        {visibleError && (
                             <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
                                 <AlertCircle className="size-4 shrink-0" />
-                                <span>{error}</span>
+                                <span>{visibleError}</span>
                             </div>
                         )}
 
@@ -120,9 +107,7 @@ export default function MoveDocDialog({
                             </label>
 
                             {isLoadingCollections ? (
-                                <div className="h-9 flex items-center justify-center border rounded-md text-xs text-muted-foreground gap-2">
-                                    <Spinner className="size-3.5" /> Loading collections...
-                                </div>
+                                <Skeleton className="h-9 w-full rounded-md" role="status" aria-label="Loading collections" />
                             ) : (
                                 <Select
                                     value={selectedCollectionId}
@@ -138,7 +123,7 @@ export default function MoveDocDialog({
                                                     <span className="text-muted-foreground">No Collection (General knowledge)</span>
                                                 </div>
                                             </SelectItem>
-                                            {collections.map((col) => (
+                                            {collections?.items?.map((col) => (
                                                 <SelectItem key={col.id} value={col.id}>
                                                     <div className="flex items-center gap-2">
                                                         <Folder className="size-3.5 text-purple-500 shrink-0" />

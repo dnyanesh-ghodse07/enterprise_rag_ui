@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { apiGet, apiUpload } from "../../api/client";
+import { apiUpload } from "../../api/client";
+import { useApiGet } from "../../hooks/use-api-get";
 import type { CollectionResponse } from "../../types/collection.types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
@@ -7,6 +8,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "../ui/select";
 import { Spinner } from "../ui/spinner";
+import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { 
     UploadCloud, 
@@ -36,7 +38,7 @@ export default function UploadDoc({ onUploadSuccess, defaultCollectionId }: Uplo
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [collectionId, setCollectionId] = useState<string>(defaultCollectionId || "");
-    const [collections, setCollections] = useState<CollectionResponse | null>(null);
+    const { data: collections, isLoading: isLoadingCollections } = useApiGet<CollectionResponse>("/collections");
     const [isUploading, setIsUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -49,16 +51,6 @@ export default function UploadDoc({ onUploadSuccess, defaultCollectionId }: Uplo
             setCollectionId(defaultCollectionId);
         }
     }, [defaultCollectionId]);
-
-    useEffect(() => {
-        apiGet<CollectionResponse>("/collections")
-            .then((res) => {
-                setCollections(res);
-            })
-            .catch((err) => {
-                console.error("Error fetching collections", err);
-            });
-    }, []);
 
     const handleSelectFile = (selectedFile: File | undefined) => {
         if (!selectedFile) return;
@@ -252,38 +244,42 @@ export default function UploadDoc({ onUploadSuccess, defaultCollectionId }: Uplo
                             <Label htmlFor="doc-collection" className="text-xs font-medium">
                                 Collection <span className="text-muted-foreground">(Optional)</span>
                             </Label>
-                            <Select
-                                value={collectionId}
-                                onValueChange={(val) => setCollectionId(val ?? "")}
-                                disabled={isUploading}
-                            >
-                                <SelectTrigger id="doc-collection" className="w-full text-sm">
-                                    <div className="flex items-center gap-2 truncate">
-                                        <Folder className="size-3.5 text-muted-foreground shrink-0" />
-                                        <SelectValue placeholder="Select a collection" />
-                                    </div>
-                                </SelectTrigger>
-                                <SelectContent className="max-h-56">
-                                    <SelectGroup>
-                                        <SelectItem value="none">
-                                            <span className="text-muted-foreground">General (No Collection)</span>
-                                        </SelectItem>
-                                        {collections?.items?.map((item) => (
-                                            <SelectItem key={item.id} value={item.id}>
-                                                <div className="flex items-center gap-2">
-                                                    <Layers className="size-3.5 text-muted-foreground" />
-                                                    <span>{item.name}</span>
-                                                    {item.document_count !== undefined && (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            ({item.document_count})
-                                                        </span>
-                                                    )}
-                                                </div>
+                            {isLoadingCollections ? (
+                                <Skeleton className="h-8 w-full rounded-md" role="status" aria-label="Loading collections" />
+                            ) : (
+                                <Select
+                                    value={collectionId}
+                                    onValueChange={(val) => setCollectionId(val ?? "")}
+                                    disabled={isUploading}
+                                >
+                                    <SelectTrigger id="doc-collection" className="w-full text-sm">
+                                        <div className="flex items-center gap-2 truncate">
+                                            <Folder className="size-3.5 text-muted-foreground shrink-0" />
+                                            <SelectValue placeholder="Select a collection" />
+                                        </div>
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-56">
+                                        <SelectGroup>
+                                            <SelectItem value="none">
+                                                <span className="text-muted-foreground">General (No Collection)</span>
                                             </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                                            {collections?.items?.map((item) => (
+                                                <SelectItem key={item.id} value={item.id}>
+                                                    <div className="flex items-center gap-2">
+                                                        <Layers className="size-3.5 text-muted-foreground" />
+                                                        <span>{item.name}</span>
+                                                        {item.document_count !== undefined && (
+                                                            <span className="text-xs text-muted-foreground">
+                                                                ({item.document_count})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            )}
                         </div>
 
                         {/* Description field - full width */}

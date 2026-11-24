@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo, useTransition, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
-import { apiGet } from "../api/client";
+import { useApiGet } from "../hooks/use-api-get";
 import { 
     CollectionDetailHero, 
     EditCollectionDialog, 
@@ -30,9 +30,19 @@ export default function CollectionDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [collection, setCollection] = useState<CollectionItem | null>(null);
-    const [documents, setDocuments] = useState<Document[]>([]);
-    const [totalDocs, setTotalDocs] = useState<number>(0);
+    const [refreshVersion, setRefreshVersion] = useState(0);
+    const {
+        data: collection,
+        error: collectionError,
+        isLoading: isLoadingCollection,
+        updateData: setCollection,
+        clearError: clearCollectionError,
+    } = useApiGet<CollectionItem>(id ? `/collections/${id}` : null, refreshVersion);
+    const { data: documents, isLoading: isLoadingDocuments } = useApiGet<DocumentsList>(
+        id ? `/documents?collection_id=${id}&page_size=100` : null,
+        refreshVersion,
+    );
+    const isRefreshing = isLoadingCollection || isLoadingDocuments;
     const [searchQuery, setSearchQuery] = useState("");
     const [showUploadForm, setShowUploadForm] = useState(false);
 
@@ -44,51 +54,19 @@ export default function CollectionDetailPage() {
     // Message banner
     const [notification, setNotification] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-    const [isPending, startTransition] = useTransition();
+    const visibleNotification = collectionError
+        ? { text: collectionError.message || "Failed to load collection details.", type: "error" }
+        : notification;
 
-    const fetchCollectionData = useCallback(async () => {
-        if (!id) return;
-        try {
-            const col = await apiGet<CollectionItem>(`/collections/${id}`);
-            setCollection(col);
-        } catch (err: any) {
-            console.error("Failed to load collection", err);
-            setNotification({
-                text: err?.message || "Failed to load collection details.",
-                type: "error",
-            });
-        }
-    }, [id]);
-
-    const fetchCollectionDocuments = useCallback(async () => {
-        if (!id) return;
-        try {
-            const docsRes = await apiGet<DocumentsList>(`/documents?collection_id=${id}&page_size=100`);
-            setDocuments(docsRes.items || []);
-            setTotalDocs(docsRes.total || 0);
-        } catch (err: any) {
-            console.error("Failed to load collection documents", err);
-        }
-    }, [id]);
-
-    const handleRefresh = useCallback(() => {
-        startTransition(() => {
-            fetchCollectionData();
-            fetchCollectionDocuments();
-        });
-    }, [fetchCollectionData, fetchCollectionDocuments]);
-
-    useEffect(() => {
-        handleRefresh();
-    }, [handleRefresh]);
+    const handleRefresh = () => setRefreshVersion((version) => version + 1);
 
     // Filter documents by local search
     const filteredDocuments = useMemo(() => {
-        if (!documents) return [];
-        if (!searchQuery.trim()) return documents;
+        const items = documents?.items ?? [];
+        if (!searchQuery.trim()) return items;
 
         const q = searchQuery.toLowerCase();
-        return documents.filter((doc) =>
+        return items.filter((doc) =>
             doc.title?.toLowerCase().includes(q) ||
             doc.filename?.toLowerCase().includes(q) ||
             doc.uploader_name?.toLowerCase().includes(q) ||
@@ -120,9 +98,9 @@ export default function CollectionDetailPage() {
     };
 
     // Loading skeleton
-    if (isPending && !collection) {
+    if (isLoadingCollection && !collection) {
         return (
-            <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-6">
+            <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-6" role="status" aria-label="Loading collection">
                 <div className="flex items-center gap-3">
                     <Skeleton className="size-8 rounded-lg" />
                     <Skeleton className="h-6 w-48" />
@@ -141,7 +119,7 @@ export default function CollectionDetailPage() {
     }
 
     // Not found state
-    if (!collection && !isPending) {
+    if (!collection) {
         return (
             <div className="w-full max-w-7xl mx-auto px-3 py-12 text-center">
                 <AlertCircle className="size-12 mx-auto text-destructive mb-3" />
@@ -155,8 +133,6 @@ export default function CollectionDetailPage() {
             </div>
         );
     }
-
-    if (!collection) return null;
 
     return (
         <div className="w-full max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-5 sm:space-y-6">
@@ -184,26 +160,29 @@ export default function CollectionDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={handleRefresh}
-                    disabled={isPending}
+                    disabled={isRefreshing}
                     className="text-xs"
                 >
-                    <RefreshCw className={`size-3.5 mr-1.5 ${isPending ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`size-3.5 mr-1.5 ${isRefreshing ? "animate-spin" : ""}`} />
                     Refresh
                 </Button>
             </div>
 
             {/* Notification Alert Banner */}
-            {notification && (
+            {visibleNotification && (
                 <div className={`flex items-center justify-between p-3 rounded-xl text-xs sm:text-sm animate-in fade-in-50 duration-200 ${
-                    notification.type === "success" 
+                    visibleNotification.type === "success"
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
                         : "bg-destructive/10 text-destructive border border-destructive/20"
                 }`}>
                     <div className="flex items-center gap-2">
-                        {notification.type === "success" ? <CheckCircle2 className="size-4 shrink-0" /> : <AlertCircle className="size-4 shrink-0" />}
-                        <span>{notification.text}</span>
+                        {visibleNotification.type === "success" ? <CheckCircle2 className="size-4 shrink-0" /> : <AlertCircle className="size-4 shrink-0" />}
+                        <span>{visibleNotification.text}</span>
                     </div>
-                    <button onClick={() => setNotification(null)} className="p-0.5 hover:opacity-80">
+                    <button onClick={() => {
+                        clearCollectionError();
+                        setNotification(null);
+                    }} className="p-0.5 hover:opacity-80">
                         <X className="size-3.5" />
                     </button>
                 </div>
@@ -258,9 +237,13 @@ export default function CollectionDetailPage() {
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end text-xs text-muted-foreground">
-                    <span>
-                        Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {totalDocs} documents
-                    </span>
+                    {isLoadingDocuments && !documents ? (
+                        <Skeleton className="h-4 w-36" aria-hidden="true" />
+                    ) : (
+                        <span>
+                            Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {documents?.total ?? 0} documents
+                        </span>
+                    )}
                     {!showUploadForm && (
                         <button
                             type="button"
@@ -276,7 +259,7 @@ export default function CollectionDetailPage() {
             {/* Collection Documents Grid */}
             <DocGrid
                 documents={filteredDocuments}
-                isLoading={isPending}
+                isLoading={isLoadingDocuments}
                 hasActiveFilters={Boolean(searchQuery)}
                 onClearFilters={() => setSearchQuery("")}
                 onUploadClick={() => setShowUploadForm(true)}
