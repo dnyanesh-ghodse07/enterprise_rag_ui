@@ -46,7 +46,7 @@ export function ChatComposer() {
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ask Cognix about your documents, summarize content..."
+                        placeholder="Ask Rio AI about your documents, summarize content..."
                         rows={1}
                         disabled={loadingSubmit}
                         className="flex-1 bg-transparent text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 resize-none outline-none leading-relaxed min-h-[40px] sm:min-h-[44px] max-h-[140px] sm:max-h-[160px] py-1 px-1"

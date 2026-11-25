@@ -66,7 +66,7 @@ export function ChatMessages() {
                                                 <span className="size-1.5 rounded-full bg-primary animate-bounce" />
                                             </div>
                                             <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
-                                                Cognix is researching documents and generating response...
+                                                Rio AI is researching documents and generating a response...
                                             </span>
                                         </div>
                                     </div>

@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════
-# COGNIX FRONTEND — Production Dockerfile
+# RIO AI FRONTEND — Production Dockerfile
 #
 # Stage 1: Build the React app (Node.js)
 # Stage 2: Serve with Nginx (tiny, fast)

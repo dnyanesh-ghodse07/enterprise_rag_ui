@@ -47,7 +47,7 @@ export function ChatWelcome() {
 
             {/* Heading & Subtitle */}
             <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">
-                How can Cognix assist you today?
+                How can Rio AI assist you today?
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-md leading-relaxed px-2">
                 Ask questions, synthesize findings, and explore insights grounded in your uploaded documents and collections.

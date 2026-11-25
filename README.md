@@ -1,6 +1,6 @@
-# Cognix — Frontend
+# Rio AI — Frontend
 
-The web client for **Cognix**, an AI-powered knowledge management and chat assistant platform. Built with React 19, TypeScript, and Tailwind CSS v4.
+The web client for **Rio AI**, an AI-powered knowledge management and chat assistant platform. Built with React 19, TypeScript, and Tailwind CSS v4.
 
 ---
 
@@ -24,7 +24,7 @@ The web client for **Cognix**, an AI-powered knowledge management and chat assis
 
 - **Node.js** >= 20
 - **npm** >= 10
-- A running instance of the Cognix backend API (default: `http://localhost:8000`)
+- A running instance of the backend API (default: `http://localhost:8000`)
 
 ---
 

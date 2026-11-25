@@ -92,7 +92,7 @@ export default function Header() {
     const getPageTitle = () => {
         if (location.pathname.startsWith("/documents")) return "Documents";
         if (location.pathname.startsWith("/chat")) return "Chat Assistant";
-        return "Cognix";
+        return "Rio AI";
     };
 
     return (

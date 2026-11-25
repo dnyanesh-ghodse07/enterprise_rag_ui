@@ -107,7 +107,7 @@ export function AppSidebar() {
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-sm font-bold tracking-tight text-sidebar-foreground truncate">
-                            Cognix
+                            Rio AI
                         </span>
                         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider truncate">
                             AI Knowledge Base

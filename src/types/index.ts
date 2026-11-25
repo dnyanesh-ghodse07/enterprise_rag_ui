@@ -1,5 +1,5 @@
 /**
- * Core type definitions for Cognix frontend.
+ * Core type definitions for the Rio AI frontend.
  * 
  * These types mirror the backend API schemas.
  * TypeScript ensures we never send wrong data to the API

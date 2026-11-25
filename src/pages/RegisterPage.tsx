@@ -129,7 +129,7 @@ export default function RegisterPage() {
                         <Sparkles className="size-6" />
                     </div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                        Cognix
+                        Rio AI
                     </h1>
                     <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                         Intelligent Document Knowledge Base & Chat Assistant
@@ -330,7 +330,7 @@ export default function RegisterPage() {
 
                 {/* Footer copyright */}
                 <p className="text-[11px] text-center text-muted-foreground/60 mt-6">
-                    Cognix AI Platform · Enterprise RAG Ingestion & Vector Retrieval
+                    Rio AI Platform · Enterprise RAG Ingestion & Vector Retrieval
                 </p>
             </div>
         </div>
