@@ -9,6 +9,7 @@ import {
     UploadDoc, 
     MoveDocDialog 
 } from "../components/document";
+import DocJobsTab from "../components/document/doc-jobs-tab";
 import { 
     CollectionGrid, 
     CreateCollectionDialog, 
@@ -28,20 +29,20 @@ import {
     Search, 
     X, 
     CheckCircle2, 
-    AlertCircle 
+    AlertCircle,
+    ListTodo
 } from "lucide-react";
 
-type ActiveTab = "documents" | "collections";
+type ActiveTab = "documents" | "collections" | "jobs";
 
 export default function DocumentPage() {
     const navigate = useNavigate();
     const [refreshVersion, setRefreshVersion] = useState(0);
-    const { data: documents, isLoading: isLoadingDocuments } = useApiGet<DocumentsList>("/documents?page_size=100", refreshVersion);
+    const { data: documents, error: documentsError, isLoading: isLoadingDocuments } = useApiGet<DocumentsList>("/documents?page_size=100", refreshVersion);
     const { data: docStats, isLoading: isLoadingDocStats } = useApiGet<DocStatsType>("/documents/stats", refreshVersion);
     const { data: collectionList, isLoading: isLoadingCollections } = useApiGet<CollectionResponse>("/collections", refreshVersion);
     const showDocumentCountSkeleton = isLoadingDocuments && !documents;
 
-    // Active View Tab: Documents or Collections
     const [activeTab, setActiveTab] = useState<ActiveTab>("documents");
 
     // Documents state
@@ -63,6 +64,11 @@ export default function DocumentPage() {
     const [notification, setNotification] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
     const handleRefresh = () => setRefreshVersion((version) => version + 1);
+
+    function selectTab(tab: ActiveTab) {
+        if (activeTab === "jobs" && tab !== "jobs") handleRefresh();
+        setActiveTab(tab);
+    }
 
     // Filter documents based on query, collection, and status
     const filteredDocuments = useMemo(() => {
@@ -188,12 +194,13 @@ export default function DocumentPage() {
                 </div>
             )}
 
-            {/* View Tab Switcher: Documents vs Collections */}
+            {/* View Tab Switcher */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/70 pb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <button
                         type="button"
-                        onClick={() => setActiveTab("documents")}
+                        onClick={() => selectTab("documents")}
+                        aria-pressed={activeTab === "documents"}
                         className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                             activeTab === "documents"
                                 ? "bg-primary text-primary-foreground shadow-xs"
@@ -217,7 +224,8 @@ export default function DocumentPage() {
 
                     <button
                         type="button"
-                        onClick={() => setActiveTab("collections")}
+                        onClick={() => selectTab("collections")}
+                        aria-pressed={activeTab === "collections"}
                         className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                             activeTab === "collections"
                                 ? "bg-primary text-primary-foreground shadow-xs"
@@ -238,11 +246,25 @@ export default function DocumentPage() {
                             </span>
                         )}
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => selectTab("jobs")}
+                        aria-pressed={activeTab === "jobs"}
+                        className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                            activeTab === "jobs"
+                                ? "bg-primary text-primary-foreground shadow-xs"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                        }`}
+                    >
+                        <ListTodo aria-hidden="true" className="size-4" />
+                        <span>Jobs</span>
+                    </button>
                 </div>
 
                 {/* Sub-actions in tab bar */}
                 <div className="flex items-center gap-2">
-                    {activeTab === "collections" ? (
+                    {activeTab === "collections" && (
                         <Button
                             size="sm"
                             onClick={() => setShowCreateCollectionDialog(true)}
@@ -251,13 +273,14 @@ export default function DocumentPage() {
                             <FolderPlus className="size-3.5 mr-1.5" />
                             New Collection
                         </Button>
-                    ) : showDocumentCountSkeleton ? (
+                    )}
+                    {activeTab === "documents" && (showDocumentCountSkeleton ? (
                         <Skeleton className="hidden h-4 w-36 sm:block" aria-hidden="true" />
                     ) : (
                         <span className="text-xs text-muted-foreground hidden sm:inline">
                             Showing <strong className="text-foreground">{filteredDocuments.length}</strong> of {documents?.total ?? 0} documents
                         </span>
-                    )}
+                    ))}
                 </div>
             </div>
 
@@ -357,6 +380,15 @@ export default function DocumentPage() {
                         onDeleteCollection={(col) => setCollectionToDelete(col)}
                     />
                 </div>
+            )}
+
+            {activeTab === "jobs" && (
+                <DocJobsTab
+                    documents={documents}
+                    documentsError={documentsError}
+                    isLoadingDocuments={isLoadingDocuments}
+                    refreshVersion={refreshVersion}
+                />
             )}
 
             {/* Create Collection Dialog */}
