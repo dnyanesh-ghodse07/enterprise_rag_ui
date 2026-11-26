@@ -1,11 +1,11 @@
 import { useRef, useEffect } from "react";
-import { ArrowUp, X, FileSearch } from "lucide-react";
+import { AlertCircle, ArrowUp, X, FileSearch } from "lucide-react";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { useChat } from "../../context/ChatContext";
 
 export function ChatComposer() {
-    const { handleChat, loadingSubmit, question, setQuestion } = useChat();
+    const { chatError, handleChat, loadingSubmit, question, setQuestion } = useChat();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Auto-grow textarea height to fit content up to 160px
@@ -38,6 +38,14 @@ export function ChatComposer() {
 
     return (
         <div className="w-full max-w-3xl mx-auto px-2.5 sm:px-4 pb-2 sm:pb-4 pt-1 shrink-0">
+            <div role="alert">
+                {chatError && (
+                    <div className="mb-2 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive sm:text-sm">
+                        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+                        <p className="min-w-0 whitespace-pre-wrap wrap-anywhere">{chatError}</p>
+                    </div>
+                )}
+            </div>
             <div className="relative rounded-xl sm:rounded-2xl border border-border/80 bg-card shadow-sm transition-all focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 overflow-hidden">
                 {/* Input Textarea Area */}
                 <div className="flex items-end gap-1.5 sm:gap-2 p-2 sm:p-3">

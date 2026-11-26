@@ -4,7 +4,7 @@
  * HOW IT WORKS:
  * 1. All requests pass through this client
  * 2. It automatically adds the Authorization header
- * 3. If a request fails with 401, it redirects to login
+ * 3. Protected requests refresh the session on 401 before redirecting to login
  * 4. Handles JSON serialization/deserialization
  * 
  * NEVER use raw fetch() in components — always use this client.
@@ -19,6 +19,38 @@ import type {
 } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
+export const GENERIC_API_ERROR_MESSAGE = 'Something went wrong. Please try again.';
+
+export class ApiError extends Error {
+    readonly status: number;
+
+    constructor(status: number, message = GENERIC_API_ERROR_MESSAGE) {
+        super(message);
+        this.name = 'ApiError';
+        this.status = status;
+    }
+}
+
+function readMessage(value: unknown): string | undefined {
+    return typeof value === 'string' ? value.trim() || undefined : undefined;
+}
+
+async function readApiError(response: Response): Promise<ApiError> {
+    const body: unknown = await response.json().catch(() => null);
+    if (!body || typeof body !== 'object') {
+        return new ApiError(response.status);
+    }
+
+    const error = 'error' in body ? body.error : undefined;
+    const message = error && typeof error === 'object' && 'message' in error
+        ? readMessage(error.message)
+        : undefined;
+    const legacyMessage = 'detail' in body ? readMessage(body.detail) : undefined;
+    const topLevelMessage = 'message' in body ? readMessage(body.message) : undefined;
+
+    return new ApiError(response.status, message ?? legacyMessage ?? topLevelMessage);
+}
 
 /**
  * Get the stored auth token.
@@ -100,7 +132,7 @@ export async function refreshTokens(): Promise<AuthTokens> {
  * - Adds Authorization header
  * - Serializes JSON body
  * - Automatically refreshes token on 401 and retries
- * - Redirects to login only if refresh fails
+ * - Redirects to login if a protected request remains unauthorized
  */
 export async function apiRequest<T>(
     endpoint: string,
@@ -122,48 +154,46 @@ export async function apiRequest<T>(
         headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const handleRequestFailure = (cause: unknown): never => {
+        if (options.signal?.aborted) {
+            throw cause;
+        }
+        throw new Error(GENERIC_API_ERROR_MESSAGE, { cause });
+    };
+
+    const sendRequest = () => fetch(`${API_BASE}${endpoint}`, {
         ...options,
         headers,
-    });
+    }).catch(handleRequestFailure);
+    let response = await sendRequest();
 
     // Handle 401 (unauthorized) with automatic refresh
-    if (response.status === 401) {
-        const isAuthEndpoint = 
-            endpoint.startsWith('/auth/login') || 
-            endpoint.startsWith('/auth/refresh') || 
-            endpoint.startsWith('/auth/register');
+    const isAuthEndpoint =
+        endpoint.startsWith('/auth/login') ||
+        endpoint.startsWith('/auth/refresh') ||
+        endpoint.startsWith('/auth/register');
 
-        if (!isAuthEndpoint && getRefreshToken()) {
-            try {
-                const refreshed = await refreshTokens();
-                // Retry original request with new access token
+    if (response.status === 401 && !isAuthEndpoint) {
+        if (getRefreshToken()) {
+            const refreshed = await refreshTokens().catch(() => null);
+            if (refreshed) {
                 headers['Authorization'] = `Bearer ${refreshed.access_token}`;
-                const retryResponse = await fetch(`${API_BASE}${endpoint}`, {
-                    ...options,
-                    headers,
-                });
-
-                if (retryResponse.ok) {
-                    return retryResponse.json();
-                }
-            } catch {
-                // Refresh failed, fall through to redirect
+                response = await sendRequest();
             }
         }
 
-        clearTokens();
-        window.location.href = '/login';
-        throw new Error('Unauthorized');
+        if (response.status === 401) {
+            clearTokens();
+            window.location.href = '/login';
+        }
     }
 
     // Handle errors
     if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-        throw new Error(error.detail || `HTTP ${response.status}`);
+        throw await readApiError(response);
     }
 
-    return response.json();
+    return response.json().catch(handleRequestFailure);
 }
 
 /**

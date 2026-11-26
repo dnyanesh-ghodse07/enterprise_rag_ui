@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react";
-import { useNavigate, useParams } from "react-router";
-import { apiGet, apiPost } from "../api/client";
-import type { ChatMessage, Conversation } from "../types";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { ApiError, apiGet, apiPost, GENERIC_API_ERROR_MESSAGE } from "../api/client";
+import type { ChatMessage, ChatResponse, Conversation } from "../types";
 
 interface ChatContextType {
     messages: ChatMessage[];
@@ -9,6 +9,7 @@ interface ChatContextType {
     setQuestion: (q: string) => void;
     loadingSubmit: boolean;
     loadingConversation: boolean;
+    chatError: string | null;
     handleChat: (customQuestion?: string) => void;
     conversationId?: string;
     currentConversation: string;
@@ -19,10 +20,12 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
     const { id: conversationId } = useParams();
+    const { key: locationKey } = useLocation();
     const navigate = useNavigate();
 
     const [loadingConversation, setLoadingConversation] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [chatError, setChatError] = useState<{ locationKey: string; message: string } | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [question, setQuestion] = useState("");
     const isNavigatingFromAskRef = useRef(false);
@@ -79,14 +82,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         // 1. Optimistic update: show user message instantly & clear input
         setMessages((prev) => [...prev, userMsg]);
         setQuestion("");
+        setChatError(null);
         setLoadingSubmit(true);
 
-        apiPost("/chat/ask", {
+        apiPost<ChatResponse>("/chat/ask", {
             question: trimmed,
             conversation_id: conversationId || null,
             stream: false,
         })
-            .then((res: any) => {
+            .then((res) => {
                 if (res?.conversation_id && res.conversation_id !== conversationId) {
                     isNavigatingFromAskRef.current = true;
                     navigate(`/chat/conversations/${res.conversation_id}`);
@@ -98,14 +102,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 };
                 setMessages((prev) => [...prev, assistantMsg]);
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 console.error("Failed to send message:", err);
-                const errorMsg: ChatMessage = {
-                    id: (Date.now() + 1).toString(),
-                    role: "assistant",
-                    content: "Sorry, I encountered an issue processing your request. Please check the network connection and try again.",
-                };
-                setMessages((prev) => [...prev, errorMsg]);
+                setChatError({
+                    locationKey,
+                    message: err instanceof ApiError ? err.message : GENERIC_API_ERROR_MESSAGE,
+                });
             })
             .finally(() => {
                 setLoadingSubmit(false);
@@ -120,6 +122,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 setQuestion,
                 loadingSubmit,
                 loadingConversation,
+                chatError: chatError?.locationKey === locationKey ? chatError.message : null,
                 handleChat,
                 conversationId,
                 currentConversation,
